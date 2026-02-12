@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Binance Futures Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            touch-action: manipulation;
+            -webkit-appearance: none;
+        }
+
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #dc2626;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+            animation: pulse 2s infinite;
+            flex-shrink: 0;
+        }
+
+        .status-dot.active {
+            background: #10b981;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        @media (min-width: 640px) {
+            .stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 968px) {
+            .content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title.green {
+            color: #10b981;
+        }
+
+        .card-title.red {
+            color: #ef4444;
+        }
+
+        .coin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .coin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            touch-action: manipulation;
+        }
+
+        .coin-item:hover {
+            transform: translateX(3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .coin-item.green {
+            border-left-color: #10b981;
+        }
+
+        .coin-item.red {
+            border-left-color: #ef4444;
+        }
+
+        .coin-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .coin-symbol {
+            font-weight: 700;
+            font-size: 15px;
+            color: #1e293b;
+        }
+
+        .coin-price {
+            font-size: 12px;
+            color: #64748b;
+            word-break: break-all;
+        }
+
+        .coin-change {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        .change-percent {
+            font-size: 16px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        .change-percent.green {
+            color: #10b981;
+            background: #d1fae5;
+        }
+
+        .change-percent.red {
+            color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .change-time {
+            font-size: 10px;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 4px solid #ef4444;
+            font-size: 13px;
+        }
+
+        .coin-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .coin-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .coin-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .threshold-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .threshold-control label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .threshold-control input[type="number"] {
+            width: 70px;
+            padding: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 16px;
+            text-align: center;
+            -webkit-appearance: none;
+        }
+
+        .threshold-control input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 5px;
+        }
+
+        .threshold-control select {
+            padding: 8px;
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+            font-size: 14px;
+            background: white;
+        }
+
+        .external-link {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 3px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .device-info {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            color: #166534;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .device-info.mobile {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Binance Futures Tracker</h1>
+            <div class="controls">
+                <button class="btn btn-primary" id="startBtn">▶️ Başlat</button>
+                <button class="btn btn-secondary" id="stopBtn" style="display: none;">⏸️ Durdur</button>
+                
+                <div class="threshold-control">
+                    <label for="thresholdInput">Eşik:</label>
+                    <input type="number" id="thresholdInput" value="6" min="0.1" max="50" step="0.1">
+                    <span>%</span>
+                </div>
+                
+                <div class="threshold-control">
+                    <label>
+                        <input type="checkbox" id="autoRefresh">
+                        Oto
+                    </label>
+                    <select id="refreshInterval">
+                        <option value="30">30s</option>
+                        <option value="60" selected>1dk</option>
+                        <option value="120">2dk</option>
+                        <option value="300">5dk</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="deviceInfo" class="device-info">
+                Cihaz algılanıyor...
+            </div>
+            
+            <div class="status" style="margin-top: 10px;">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Hazır - Başlat butonuna basın</span>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-label">Toplam</div>
+                    <div class="stat-value" id="totalCoins">0</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #10b981;">
+                    <div class="stat-label">Yükselen</div>
+                    <div class="stat-value" id="risingCoins" style="color: #10b981;">0</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #ef4444;">
+                    <div class="stat-label">Düşen</div>
+                    <div class="stat-value" id="fallingCoins" style="color: #ef4444;">0</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #f59e0b;">
+                    <div class="stat-label">Son Günc.</div>
+                    <div class="stat-value" id="lastUpdate" style="font-size: 14px;">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="card">
+                <h2 class="card-title green">📈 Yükselenler</h2>
+                <div class="coin-list" id="risingList">
+                    <div class="loading">Başlat butonuna basın...</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title red">📉 Düşenler</h2>
+                <div class="coin-list" id="fallingList">
+                    <div class="loading">Başlat butonuna basın...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cihaz tespiti
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+        
+        // CORS Proxy listesi - sadece mobil için
+        const CORS_PROXIES = [
+            'https://api.allorigins.win/get?url=',
+            'https://corsproxy.io/?',
+            'https://api.codetabs.com/v1/proxy?quest='
+        ];
+        
+        let currentProxyIndex = 0;
+        
+        function getProxyUrl() {
+            return CORS_PROXIES[currentProxyIndex];
+        }
+        
+        function switchProxy() {
+            currentProxyIndex = (currentProxyIndex + 1) % CORS_PROXIES.length;
+            console.log('Proxy değiştirildi:', getProxyUrl());
+            return getProxyUrl();
+        }
+
+        const BINANCE_API = 'https://fapi.binance.com';
+        const BINANCE_FUTURES_URL = 'https://www.binance.com/tr/futures';
+        
+        let isRunning = false;
+        let intervalId = null;
+        let currentThreshold = 6;
+        let abortController = null;
+
+        // UI Elemanları
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const deviceInfo = document.getElementById('deviceInfo');
+        const thresholdInput = document.getElementById('thresholdInput');
+        const autoRefreshCheckbox = document.getElementById('autoRefresh');
+        const refreshIntervalSelect = document.getElementById('refreshInterval');
+        const risingList = document.getElementById('risingList');
+        const fallingList = document.getElementById('fallingList');
+        const totalCoinsEl = document.getElementById('totalCoins');
+        const risingCoinsEl = document.getElementById('risingCoins');
+        const fallingCoinsEl = document.getElementById('fallingCoins');
+        const lastUpdateEl = document.getElementById('lastUpdate');
+
+        // Cihaz bilgisini göster
+        function showDeviceInfo() {
+            if (isMobile) {
+                deviceInfo.classList.add('mobile');
+                deviceInfo.innerHTML = `📱 Mobil Mod - Proxy: ${getProxyUrl().substring(0, 25)}...`;
+            } else {
+                deviceInfo.innerHTML = `💻 Desktop Mod - Direkt Bağlantı`;
+            }
+        }
+        
+        showDeviceInfo();
+
+        // Event listeners
+        startBtn.addEventListener('click', startScan);
+        stopBtn.addEventListener('click', stopScan);
+
+        thresholdInput.addEventListener('change', (e) => {
+            currentThreshold = parseFloat(e.target.value);
+            if (isRunning) {
+                fetchAndAnalyze();
+            }
+        });
+
+        autoRefreshCheckbox.addEventListener('change', () => {
+            if (isRunning) {
+                restartInterval();
+            }
+        });
+
+        refreshIntervalSelect.addEventListener('change', () => {
+            if (isRunning && autoRefreshCheckbox.checked) {
+                restartInterval();
+            }
+        });
+
+        function restartInterval() {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            
+            if (autoRefreshCheckbox.checked && isRunning) {
+                const intervalSeconds = parseInt(refreshIntervalSelect.value);
+                intervalId = setInterval(fetchAndAnalyze, intervalSeconds * 1000);
+            }
+        }
+
+        function startScan() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-block';
+            statusDot.classList.add('active');
+            statusText.textContent = 'Başlatılıyor...';
+            
+            fetchAndAnalyze();
+            
+            if (autoRefreshCheckbox.checked) {
+                const intervalSeconds = parseInt(refreshIntervalSelect.value);
+                intervalId = setInterval(fetchAndAnalyze, intervalSeconds * 1000);
+            }
+        }
+
+        function stopScan() {
+            if (abortController) {
+                abortController.abort();
+                abortController = null;
+            }
+            
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            
+            isRunning = false;
+            stopBtn.style.display = 'none';
+            startBtn.style.display = 'inline-block';
+            statusDot.classList.remove('active');
+            statusText.textContent = 'Durduruldu';
+        }
+
+        // Desktop: Direkt fetch, Mobil: Proxy ile
+        async function fetchData(url, options = {}) {
+            if (!isMobile) {
+                // Desktop - direkt bağlantı
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            } else {
+                // Mobil - CORS proxy kullan
+                return fetchWithProxy(url, options);
+            }
+        }
+
+        async function fetchWithProxy(url, options = {}) {
+            const proxyUrl = getProxyUrl();
+            const fullUrl = proxyUrl + encodeURIComponent(url);
+            
+            console.log('Proxy isteği:', fullUrl.substring(0, 100));
+            
+            try {
+                const response = await fetch(fullUrl, {
+                    ...options,
+                    headers: {
+                        'Accept': 'application/json',
+                        ...options.headers
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // allorigins.win özel formatı kontrolü
+                if (result.contents) {
+                    return JSON.parse(result.contents);
+                }
+                
+                // Diğer proxy'ler direkt döndürüyor
+                return result;
+                
+            } catch (error) {
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    console.log('Proxy hatası, değiştiriliyor...');
+                    switchProxy();
+                    
+                    // Bir kez daha dene yeni proxy ile
+                    const newProxyUrl = getProxyUrl();
+                    const newFullUrl = newProxyUrl + encodeURIComponent(url);
+                    
+                    const response = await fetch(newFullUrl, options);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    
+                    const result = await response.json();
+                    if (result.contents) {
+                        return JSON.parse(result.contents);
+                    }
+                    return result;
+                }
+                throw error;
+            }
+        }
+
+        async function getAllFuturesSymbols() {
+            try {
+                const url = `${BINANCE_API}/fapi/v1/ticker/24hr`;
+                const data = await fetchData(url, {
+                    signal: abortController?.signal
+                });
+                
+                if (!Array.isArray(data)) {
+                    console.error('Beklenmeyen format:', data);
+                    throw new Error('API yanıtı array değil');
+                }
+                
+                console.log(`${data.length} coin bulundu`);
+                
+                return data
+                    .filter(s => s.symbol && s.symbol.endsWith('USDT'))
+                    .map(s => ({
+                        symbol: s.symbol,
+                        priceChangePercent: parseFloat(s.priceChangePercent) || 0,
+                        lastPrice: parseFloat(s.lastPrice) || 0,
+                        volume: parseFloat(s.volume) || 0
+                    }));
+            } catch (error) {
+                if (error.name === 'AbortError') return [];
+                console.error('Sembol listesi hatası:', error);
+                throw error;
+            }
+        }
+
+        async function getKlineData(symbol) {
+            try {
+                const url = `${BINANCE_API}/fapi/v1/klines?symbol=${symbol}&interval=1m&limit=15`;
+                const data = await fetchData(url, {
+                    signal: abortController?.signal
+                });
+                
+                if (!Array.isArray(data) || data.length < 2) {
+                    return null;
+                }
+                
+                const firstCandle = data[0];
+                const lastCandle = data[data.length - 1];
+                
+                const firstOpenPrice = parseFloat(firstCandle[1]);
+                const lastClosePrice = parseFloat(lastCandle[4]);
+                
+                let highestHigh = 0;
+                let lowestLow = Infinity;
+                
+                for (let candle of data) {
+                    const high = parseFloat(candle[2]);
+                    const low = parseFloat(candle[3]);
+                    if (high > highestHigh) highestHigh = high;
+                    if (low < lowestLow) lowestLow = low;
+                }
+                
+                const changePercent = ((lastClosePrice - firstOpenPrice) / firstOpenPrice) * 100;
+                
+                return {
+                    symbol,
+                    firstOpen: firstOpenPrice,
+                    lastClose: lastClosePrice,
+                    high: highestHigh,
+                    low: lowestLow,
+                    change: changePercent,
+                    firstCandleTime: new Date(firstCandle[0]).toLocaleTimeString('tr-TR'),
+                    lastCandleTime: new Date(lastCandle[6]).toLocaleTimeString('tr-TR')
+                };
+            } catch (error) {
+                if (error.name === 'AbortError') return null;
+                console.error(`${symbol} hatası:`, error);
+                return null;
+            }
+        }
+
+        async function fetchAndAnalyze() {
+            if (!isRunning) return;
+            
+            abortController = new AbortController();
+            statusText.textContent = 'Veriler çekiliyor...';
+            
+            try {
+                // 1. Tüm sembolleri al
+                const tickerData = await getAllFuturesSymbols();
+                
+                if (!isRunning) return;
+                
+                totalCoinsEl.textContent = tickerData.length;
+                
+                if (tickerData.length === 0) {
+                    throw new Error('Coin bulunamadı');
+                }
+                
+                // 2. Yüksek hacimlileri filtrele
+                const symbols = tickerData
+                    .filter(t => t.volume > 1000)
+                    .map(t => t.symbol);
+                
+                statusText.textContent = `${symbols.length} coin analiz ediliyor...`;
+                
+                // 3. Desktop: Hızlı paralel, Mobil: Yavaş sequential
+                let allResults = [];
+                
+                if (isMobile) {
+                    // Mobil - küçük batchlerle (CORS limitleri için)
+                    const batchSize = 10;
+                    for (let i = 0; i < symbols.length; i += batchSize) {
+                        if (!isRunning) return;
+                        
+                        const batch = symbols.slice(i, i + batchSize);
+                        const promises = batch.map(symbol => getKlineData(symbol));
+                        const batchResults = await Promise.all(promises);
+                        
+                        allResults.push(...batchResults.filter(r => r !== null));
+                        
+                        const progress = Math.min(i + batchSize, symbols.length);
+                        statusText.textContent = `İşleniyor... ${progress}/${symbols.length}`;
+                        
+                        await new Promise(resolve => setTimeout(resolve, 300)); // Mobilde bekle
+                    }
+                } else {
+                    // Desktop - hızlı paralel (eskisi gibi)
+                    const batchSize = 20;
+                    for (let i = 0; i < symbols.length; i += batchSize) {
+                        if (!isRunning) return;
+                        
+                        const batch = symbols.slice(i, i + batchSize);
+                        const promises = batch.map(symbol => getKlineData(symbol));
+                        const batchResults = await Promise.all(promises);
+                        
+                        allResults.push(...batchResults.filter(r => r !== null));
+                        
+                        const progress = Math.min(i + batchSize, symbols.length);
+                        statusText.textContent = `İşleniyor... ${progress}/${symbols.length}`;
+                        
+                        // Desktop'ta minimal bekleme
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    }
+                }
+                
+                if (!isRunning) return;
+                
+                // 4. Sonuçları filtrele ve sırala
+                const rising = allResults
+                    .filter(r => r.change >= currentThreshold)
+                    .sort((a, b) => b.change - a.change);
+                
+                const falling = allResults
+                    .filter(r => r.change <= -currentThreshold)
+                    .sort((a, b) => a.change - b.change);
+                
+                // 5. UI güncelle
+                displayCoins(rising, risingList, true);
+                displayCoins(falling, fallingList, false);
+                
+                risingCoinsEl.textContent = rising.length;
+                fallingCoinsEl.textContent = falling.length;
+                lastUpdateEl.textContent = new Date().toLocaleTimeString('tr-TR');
+                
+                const modeText = isMobile ? ' (Mobil)' : ' (Desktop)';
+                const autoText = autoRefreshCheckbox.checked ? ' [Oto]' : '';
+                statusText.textContent = `Tamamlandı${modeText}${autoText}`;
+                
+            } catch (error) {
+                if (error.name === 'AbortError') return;
+                
+                console.error('Analiz hatası:', error);
+                
+                if (isRunning) {
+                    statusText.textContent = 'Hata oluştu!';
+                    
+                    const errorMsg = isMobile 
+                        ? 'Mobil bağlantı hatası. Tekrar deneyin veya farklı bir ağ kullanın.'
+                        : `Bağlantı hatası: ${error.message}`;
+                    
+                    risingList.innerHTML = `<div class="error">${errorMsg}</div>`;
+                    fallingList.innerHTML = `<div class="error">Durdurup tekrar başlatmayı deneyin</div>`;
+                    
+                    // Mobilde proxy değiştir
+                    if (isMobile) {
+                        switchProxy();
+                        deviceInfo.innerHTML = `📱 Mobil Mod - Proxy: ${getProxyUrl().substring(0, 25)}...`;
+                    }
+                }
+            } finally {
+                abortController = null;
+            }
+        }
+
+        function displayCoins(coins, container, isRising) {
+            if (coins.length === 0) {
+                container.innerHTML = `<div class="loading">Eşik değeri (±${currentThreshold}%) ${isRising ? 'üzerinde' : 'altında'} coin yok</div>`;
+                return;
+            }
+            
+            container.innerHTML = coins.map(coin => {
+                const tradingPair = coin.symbol.replace('USDT', '_USDT');
+                const binanceUrl = `${BINANCE_FUTURES_URL}/${tradingPair}`;
+                
+                return `
+                <a href="${binanceUrl}" target="_blank" class="coin-item ${isRising ? 'green' : 'red'}">
+                    <div class="coin-info">
+                        <div class="coin-symbol">${coin.symbol}</div>
+                        <div class="coin-price">
+                            $${coin.firstOpen.toFixed(4)} → $${coin.lastClose.toFixed(4)}
+                        </div>
+                        <div class="external-link">↗️ Binance'da aç</div>
+                    </div>
+                    <div class="coin-change">
+                        <div class="change-percent ${isRising ? 'green' : 'red'}">
+                            ${coin.change > 0 ? '+' : ''}${coin.change.toFixed(2)}%
+                        </div>
+                        <div class="change-time">${coin.firstCandleTime}</div>
+                    </div>
+                </a>
+                `;
+            }).join('');
+        }
+
+        // Sayfa yüklendiğinde
+        window.addEventListener('load', () => {
+            console.log(`Cihaz: ${isMobile ? 'Mobil' : 'Desktop'}, Proxy: ${isMobile ? getProxyUrl() : 'Yok'}`);
+        });
+    </script>
+</body>
+</html>
