@@ -237,132 +237,144 @@
         }
 
         .coin-change {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 3px;
+            text-align: right;
             flex-shrink: 0;
-            margin-left: 10px;
         }
 
         .change-percent {
             font-size: 16px;
             font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 6px;
-            white-space: nowrap;
+            margin-bottom: 2px;
         }
 
         .change-percent.green {
             color: #10b981;
-            background: #d1fae5;
         }
 
         .change-percent.red {
             color: #ef4444;
-            background: #fee2e2;
         }
 
         .change-time {
             font-size: 10px;
             color: #94a3b8;
-            white-space: nowrap;
+        }
+
+        .external-link {
+            font-size: 11px;
+            color: #667eea;
+            margin-top: 2px;
         }
 
         .loading {
             text-align: center;
-            padding: 30px;
             color: #64748b;
+            padding: 30px;
             font-size: 14px;
         }
 
         .error {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 12px;
+            text-align: center;
+            color: #ef4444;
+            padding: 20px;
+            background: #fef2f2;
             border-radius: 8px;
-            margin: 8px 0;
-            border-left: 4px solid #ef4444;
             font-size: 13px;
-        }
-
-        .coin-list::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .coin-list::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 10px;
-        }
-
-        .coin-list::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
+            line-height: 1.6;
         }
 
         .threshold-control {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
             flex-wrap: wrap;
         }
 
         .threshold-control label {
-            font-weight: 600;
-            color: #475569;
-            font-size: 14px;
+            font-size: 13px;
+            color: #64748b;
+            white-space: nowrap;
         }
 
         .threshold-control input[type="number"] {
             width: 70px;
-            padding: 8px;
+            padding: 6px 10px;
             border: 2px solid #e2e8f0;
             border-radius: 6px;
-            font-size: 16px;
-            text-align: center;
-            -webkit-appearance: none;
-        }
-
-        .threshold-control input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            margin-right: 5px;
-        }
-
-        .threshold-control select {
-            padding: 8px;
-            border-radius: 6px;
-            border: 2px solid #e2e8f0;
             font-size: 14px;
-            background: white;
+            font-weight: 600;
+            text-align: center;
         }
 
-        .external-link {
-            font-size: 11px;
-            color: #64748b;
-            margin-top: 3px;
+        .threshold-control input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .auto-refresh {
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 6px;
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .auto-refresh input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .auto-refresh label {
+            font-size: 13px;
+            color: #64748b;
+            cursor: pointer;
         }
 
         .device-info {
-            background: #f0fdf4;
-            border: 1px solid #86efac;
-            color: #166534;
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin-top: 10px;
             font-size: 12px;
+            color: #64748b;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 8px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            flex-wrap: wrap;
         }
 
-        .device-info.mobile {
-            background: #eff6ff;
-            border-color: #93c5fd;
-            color: #1e40af;
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 20px;
+            }
+            
+            .controls {
+                width: 100%;
+            }
+            
+            .btn {
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            .status {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .threshold-control,
+            .auto-refresh,
+            .device-info {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -370,54 +382,46 @@
     <div class="container">
         <div class="header">
             <h1>🚀 Binance Futures Tracker</h1>
+            
             <div class="controls">
-                <button class="btn btn-primary" id="startBtn">▶️ Başlat</button>
-                <button class="btn btn-secondary" id="stopBtn" style="display: none;">⏸️ Durdur</button>
+                <button id="startBtn" class="btn btn-primary">Başlat</button>
+                <button id="stopBtn" class="btn btn-secondary" disabled>Durdur</button>
                 
                 <div class="threshold-control">
-                    <label for="thresholdInput">Eşik:</label>
-                    <input type="number" id="thresholdInput" value="6" min="0.1" max="50" step="0.1">
-                    <span>%</span>
+                    <label for="thresholdInput">Eşik (%):</label>
+                    <input type="number" id="thresholdInput" min="0.1" max="50" step="0.1" value="3.0">
                 </div>
                 
-                <div class="threshold-control">
-                    <label>
-                        <input type="checkbox" id="autoRefresh">
-                        Oto
-                    </label>
-                    <select id="refreshInterval">
-                        <option value="30">30s</option>
-                        <option value="60" selected>1dk</option>
-                        <option value="120">2dk</option>
-                        <option value="300">5dk</option>
-                    </select>
+                <div class="auto-refresh">
+                    <input type="checkbox" id="autoRefresh">
+                    <label for="autoRefresh">Otomatik Yenile (30sn)</label>
                 </div>
-            </div>
-            
-            <div id="deviceInfo" class="device-info">
-                Cihaz algılanıyor...
-            </div>
-            
-            <div class="status" style="margin-top: 10px;">
-                <div class="status-dot" id="statusDot"></div>
-                <span id="statusText">Hazır - Başlat butonuna basın</span>
+                
+                <div class="status">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Bekliyor...</span>
+                </div>
+                
+                <div class="device-info" id="deviceInfo">
+                    💻 Cihaz: Algılanıyor...
+                </div>
             </div>
             
             <div class="stats">
                 <div class="stat-card">
-                    <div class="stat-label">Toplam</div>
-                    <div class="stat-value" id="totalCoins">0</div>
+                    <div class="stat-label">Toplam Coin</div>
+                    <div class="stat-value" id="totalCoins">-</div>
                 </div>
-                <div class="stat-card" style="border-left-color: #10b981;">
-                    <div class="stat-label">Yükselen</div>
-                    <div class="stat-value" id="risingCoins" style="color: #10b981;">0</div>
+                <div class="stat-card">
+                    <div class="stat-label">Yükselenler</div>
+                    <div class="stat-value" id="risingCoins" style="color: #10b981;">-</div>
                 </div>
-                <div class="stat-card" style="border-left-color: #ef4444;">
-                    <div class="stat-label">Düşen</div>
-                    <div class="stat-value" id="fallingCoins" style="color: #ef4444;">0</div>
+                <div class="stat-card">
+                    <div class="stat-label">Düşenler</div>
+                    <div class="stat-value" id="fallingCoins" style="color: #ef4444;">-</div>
                 </div>
-                <div class="stat-card" style="border-left-color: #f59e0b;">
-                    <div class="stat-label">Son Günc.</div>
+                <div class="stat-card">
+                    <div class="stat-label">Son Güncelleme</div>
                     <div class="stat-value" id="lastUpdate" style="font-size: 14px;">-</div>
                 </div>
             </div>
@@ -425,212 +429,210 @@
 
         <div class="content">
             <div class="card">
-                <h2 class="card-title green">📈 Yükselenler</h2>
+                <div class="card-title green">
+                    📈 Yükselen Coinler
+                </div>
                 <div class="coin-list" id="risingList">
-                    <div class="loading">Başlat butonuna basın...</div>
+                    <div class="loading">Başlatmak için butona tıklayın</div>
                 </div>
             </div>
 
             <div class="card">
-                <h2 class="card-title red">📉 Düşenler</h2>
+                <div class="card-title red">
+                    📉 Düşen Coinler
+                </div>
                 <div class="coin-list" id="fallingList">
-                    <div class="loading">Başlat butonuna basın...</div>
+                    <div class="loading">Başlatmak için butona tıklayın</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Cihaz tespiti
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-        
-        // CORS Proxy listesi - sadece mobil için
-        const CORS_PROXIES = [
-            'https://api.allorigins.win/get?url=',
-            'https://corsproxy.io/?',
-            'https://api.codetabs.com/v1/proxy?quest='
-        ];
-        
-        let currentProxyIndex = 0;
-        
-        function getProxyUrl() {
-            return CORS_PROXIES[currentProxyIndex];
-        }
-        
-        function switchProxy() {
-            currentProxyIndex = (currentProxyIndex + 1) % CORS_PROXIES.length;
-            console.log('Proxy değiştirildi:', getProxyUrl());
-            return getProxyUrl();
-        }
-
         const BINANCE_API = 'https://fapi.binance.com';
         const BINANCE_FUTURES_URL = 'https://www.binance.com/tr/futures';
         
+        // Daha güvenilir proxy listesi (mobil uyumlu)
+        const PROXY_SERVICES = [
+            'https://api.allorigins.win/raw?url=',
+            'https://corsproxy.io/?',
+            'https://api.codetabs.com/v1/proxy?quest=',
+            'https://cors-anywhere.herokuapp.com/'  // Public instance - dikkatli kullan
+        ];
+        
+        let currentProxyIndex = 0;
         let isRunning = false;
-        let intervalId = null;
-        let currentThreshold = 6;
+        let currentThreshold = 3.0;
         let abortController = null;
-
-        // UI Elemanları
+        let autoRefreshInterval = null;
+        
+        // Mobil algılama
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                       || window.innerWidth < 768;
+        
+        // DOM elementleri
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
-        const deviceInfo = document.getElementById('deviceInfo');
-        const thresholdInput = document.getElementById('thresholdInput');
-        const autoRefreshCheckbox = document.getElementById('autoRefresh');
-        const refreshIntervalSelect = document.getElementById('refreshInterval');
         const risingList = document.getElementById('risingList');
         const fallingList = document.getElementById('fallingList');
         const totalCoinsEl = document.getElementById('totalCoins');
         const risingCoinsEl = document.getElementById('risingCoins');
         const fallingCoinsEl = document.getElementById('fallingCoins');
         const lastUpdateEl = document.getElementById('lastUpdate');
-
-        // Cihaz bilgisini göster
-        function showDeviceInfo() {
-            if (isMobile) {
-                deviceInfo.classList.add('mobile');
-                deviceInfo.innerHTML = `📱 Mobil Mod - Proxy: ${getProxyUrl().substring(0, 25)}...`;
+        const thresholdInput = document.getElementById('thresholdInput');
+        const autoRefreshCheckbox = document.getElementById('autoRefresh');
+        const deviceInfo = document.getElementById('deviceInfo');
+        
+        // Cihaz bilgisi göster
+        deviceInfo.innerHTML = isMobile 
+            ? `📱 Mobil Mod - Yavaş & Güvenli` 
+            : `💻 Desktop Mod - Hızlı`;
+        
+        // Event listeners
+        startBtn.addEventListener('click', start);
+        stopBtn.addEventListener('click', stop);
+        thresholdInput.addEventListener('change', updateThreshold);
+        autoRefreshCheckbox.addEventListener('change', toggleAutoRefresh);
+        
+        function updateThreshold() {
+            const value = parseFloat(thresholdInput.value);
+            if (value >= 0.1 && value <= 50) {
+                currentThreshold = value;
+                console.log(`Yeni eşik: ${currentThreshold}%`);
             } else {
-                deviceInfo.innerHTML = `💻 Desktop Mod - Direkt Bağlantı`;
+                thresholdInput.value = currentThreshold;
             }
         }
         
-        showDeviceInfo();
-
-        // Event listeners
-        startBtn.addEventListener('click', startScan);
-        stopBtn.addEventListener('click', stopScan);
-
-        thresholdInput.addEventListener('change', (e) => {
-            currentThreshold = parseFloat(e.target.value);
-            if (isRunning) {
-                fetchAndAnalyze();
-            }
-        });
-
-        autoRefreshCheckbox.addEventListener('change', () => {
-            if (isRunning) {
-                restartInterval();
-            }
-        });
-
-        refreshIntervalSelect.addEventListener('change', () => {
-            if (isRunning && autoRefreshCheckbox.checked) {
-                restartInterval();
-            }
-        });
-
-        function restartInterval() {
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = null;
-            }
-            
-            if (autoRefreshCheckbox.checked && isRunning) {
-                const intervalSeconds = parseInt(refreshIntervalSelect.value);
-                intervalId = setInterval(fetchAndAnalyze, intervalSeconds * 1000);
+        function toggleAutoRefresh() {
+            if (autoRefreshCheckbox.checked) {
+                if (isRunning) {
+                    autoRefreshInterval = setInterval(() => {
+                        if (isRunning) {
+                            console.log('Otomatik yenileme...');
+                            fetchAndAnalyze();
+                        }
+                    }, 30000);
+                    console.log('Otomatik yenileme aktif (30 saniye)');
+                }
+            } else {
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                    console.log('Otomatik yenileme kapatıldı');
+                }
             }
         }
-
-        function startScan() {
+        
+        function start() {
             if (isRunning) return;
             
             isRunning = true;
-            startBtn.style.display = 'none';
-            stopBtn.style.display = 'inline-block';
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
             statusDot.classList.add('active');
-            statusText.textContent = 'Başlatılıyor...';
             
+            risingList.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
+            fallingList.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
+            
+            toggleAutoRefresh();
             fetchAndAnalyze();
-            
-            if (autoRefreshCheckbox.checked) {
-                const intervalSeconds = parseInt(refreshIntervalSelect.value);
-                intervalId = setInterval(fetchAndAnalyze, intervalSeconds * 1000);
-            }
         }
-
-        function stopScan() {
-            if (abortController) {
-                abortController.abort();
-                abortController = null;
-            }
-            
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = null;
-            }
+        
+        function stop() {
+            if (!isRunning) return;
             
             isRunning = false;
-            stopBtn.style.display = 'none';
-            startBtn.style.display = 'inline-block';
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
             statusDot.classList.remove('active');
             statusText.textContent = 'Durduruldu';
+            
+            if (abortController) {
+                abortController.abort();
+            }
+            
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+            
+            autoRefreshCheckbox.checked = false;
+        }
+        
+        function getProxyUrl() {
+            return PROXY_SERVICES[currentProxyIndex];
+        }
+        
+        function switchProxy() {
+            currentProxyIndex = (currentProxyIndex + 1) % PROXY_SERVICES.length;
+            console.log(`Proxy değiştirildi: ${getProxyUrl()}`);
         }
 
-        // Desktop: Direkt fetch, Mobil: Proxy ile
         async function fetchData(url, options = {}) {
-            if (!isMobile) {
-                // Desktop - direkt bağlantı
-                const response = await fetch(url, options);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return response.json();
-            } else {
-                // Mobil - CORS proxy kullan
-                return fetchWithProxy(url, options);
-            }
-        }
-
-        async function fetchWithProxy(url, options = {}) {
-            const proxyUrl = getProxyUrl();
-            const fullUrl = proxyUrl + encodeURIComponent(url);
+            const maxRetries = isMobile ? 3 : 2;
+            let lastError = null;
             
-            console.log('Proxy isteği:', fullUrl.substring(0, 100));
-            
-            try {
-                const response = await fetch(fullUrl, {
-                    ...options,
-                    headers: {
-                        'Accept': 'application/json',
-                        ...options.headers
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    // Mobilde proxy kullan, desktop'ta direkt
+                    const finalUrl = isMobile ? `${getProxyUrl()}${encodeURIComponent(url)}` : url;
+                    
+                    const response = await fetch(finalUrl, {
+                        ...options,
+                        headers: {
+                            'Accept': 'application/json',
+                            ...(options.headers || {})
+                        },
+                        mode: isMobile ? 'cors' : 'cors',
+                        cache: 'no-cache'
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const result = await response.json();
-                
-                // allorigins.win özel formatı kontrolü
-                if (result.contents) {
-                    return JSON.parse(result.contents);
-                }
-                
-                // Diğer proxy'ler direkt döndürüyor
-                return result;
-                
-            } catch (error) {
-                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                    console.log('Proxy hatası, değiştiriliyor...');
-                    switchProxy();
                     
-                    // Bir kez daha dene yeni proxy ile
-                    const newProxyUrl = getProxyUrl();
-                    const newFullUrl = newProxyUrl + encodeURIComponent(url);
+                    const contentType = response.headers.get('content-type');
                     
-                    const response = await fetch(newFullUrl, options);
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    
-                    const result = await response.json();
-                    if (result.contents) {
-                        return JSON.parse(result.contents);
+                    // AllOrigins formatını kontrol et
+                    if (contentType?.includes('application/json')) {
+                        const data = await response.json();
+                        
+                        // AllOrigins response formatı
+                        if (data.contents) {
+                            try {
+                                return JSON.parse(data.contents);
+                            } catch {
+                                return data.contents;
+                            }
+                        }
+                        
+                        return data;
                     }
-                    return result;
+                    
+                    // Text olarak al ve parse et
+                    const text = await response.text();
+                    try {
+                        return JSON.parse(text);
+                    } catch {
+                        throw new Error('JSON parse hatası');
+                    }
+                    
+                } catch (error) {
+                    lastError = error;
+                    console.warn(`Deneme ${attempt + 1}/${maxRetries} başarısız:`, error.message);
+                    
+                    // Mobilde her denemede proxy değiştir
+                    if (isMobile && attempt < maxRetries - 1) {
+                        switchProxy();
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
                 }
-                throw error;
             }
+            
+            throw lastError || new Error('Bağlantı başarısız');
         }
 
         async function getAllFuturesSymbols() {
@@ -645,7 +647,7 @@
                     throw new Error('API yanıtı array değil');
                 }
                 
-                console.log(`${data.length} coin bulundu`);
+                console.log(`✅ ${data.length} coin bulundu`);
                 
                 return data
                     .filter(s => s.symbol && s.symbol.endsWith('USDT'))
@@ -657,7 +659,7 @@
                     }));
             } catch (error) {
                 if (error.name === 'AbortError') return [];
-                console.error('Sembol listesi hatası:', error);
+                console.error('❌ Sembol listesi hatası:', error);
                 throw error;
             }
         }
@@ -703,8 +705,7 @@
                 };
             } catch (error) {
                 if (error.name === 'AbortError') return null;
-                console.error(`${symbol} hatası:`, error);
-                return null;
+                return null; // Sessizce geç
             }
         }
 
@@ -733,28 +734,35 @@
                 
                 statusText.textContent = `${symbols.length} coin analiz ediliyor...`;
                 
-                // 3. Desktop: Hızlı paralel, Mobil: Yavaş sequential
+                // 3. Mobil: Çok yavaş ve dikkatli, Desktop: Hızlı
                 let allResults = [];
                 
                 if (isMobile) {
-                    // Mobil - küçük batchlerle (CORS limitleri için)
-                    const batchSize = 10;
+                    // MOBİL - ÇOK YAVAŞ (Rate limit ve CORS için)
+                    const batchSize = 5; // Daha küçük batch
                     for (let i = 0; i < symbols.length; i += batchSize) {
                         if (!isRunning) return;
                         
                         const batch = symbols.slice(i, i + batchSize);
-                        const promises = batch.map(symbol => getKlineData(symbol));
-                        const batchResults = await Promise.all(promises);
                         
-                        allResults.push(...batchResults.filter(r => r !== null));
+                        // Sıralı işle (paralel değil!)
+                        for (const symbol of batch) {
+                            if (!isRunning) return;
+                            const result = await getKlineData(symbol);
+                            if (result) allResults.push(result);
+                            
+                            // Her istek arasında bekle
+                            await new Promise(resolve => setTimeout(resolve, 200));
+                        }
                         
                         const progress = Math.min(i + batchSize, symbols.length);
-                        statusText.textContent = `İşleniyor... ${progress}/${symbols.length}`;
+                        statusText.textContent = `📱 Mobil: ${progress}/${symbols.length} (Yavaş ama güvenli)`;
                         
-                        await new Promise(resolve => setTimeout(resolve, 300)); // Mobilde bekle
+                        // Batch'ler arası uzun bekleme
+                        await new Promise(resolve => setTimeout(resolve, 1000));
                     }
                 } else {
-                    // Desktop - hızlı paralel (eskisi gibi)
+                    // DESKTOP - HIZLI (Eskisi gibi)
                     const batchSize = 20;
                     for (let i = 0; i < symbols.length; i += batchSize) {
                         if (!isRunning) return;
@@ -766,9 +774,8 @@
                         allResults.push(...batchResults.filter(r => r !== null));
                         
                         const progress = Math.min(i + batchSize, symbols.length);
-                        statusText.textContent = `İşleniyor... ${progress}/${symbols.length}`;
+                        statusText.textContent = `💻 Desktop: ${progress}/${symbols.length}`;
                         
-                        // Desktop'ta minimal bekleme
                         await new Promise(resolve => setTimeout(resolve, 50));
                     }
                 }
@@ -792,30 +799,28 @@
                 fallingCoinsEl.textContent = falling.length;
                 lastUpdateEl.textContent = new Date().toLocaleTimeString('tr-TR');
                 
-                const modeText = isMobile ? ' (Mobil)' : ' (Desktop)';
+                const modeText = isMobile ? ' 📱' : ' 💻';
                 const autoText = autoRefreshCheckbox.checked ? ' [Oto]' : '';
-                statusText.textContent = `Tamamlandı${modeText}${autoText}`;
+                statusText.textContent = `✅ Tamamlandı${modeText}${autoText}`;
                 
             } catch (error) {
                 if (error.name === 'AbortError') return;
                 
-                console.error('Analiz hatası:', error);
+                console.error('❌ Analiz hatası:', error);
                 
                 if (isRunning) {
-                    statusText.textContent = 'Hata oluştu!';
+                    statusText.textContent = '❌ Hata!';
                     
                     const errorMsg = isMobile 
-                        ? 'Mobil bağlantı hatası. Tekrar deneyin veya farklı bir ağ kullanın.'
+                        ? `Mobil bağlantı hatası. Lütfen:<br>
+                           • Farklı bir Wi-Fi/4G ağı deneyin<br>
+                           • Tarayıcınızı yeniden başlatın<br>
+                           • VPN kullanmayı deneyin<br>
+                           <small>Hata: ${error.message}</small>`
                         : `Bağlantı hatası: ${error.message}`;
                     
                     risingList.innerHTML = `<div class="error">${errorMsg}</div>`;
-                    fallingList.innerHTML = `<div class="error">Durdurup tekrar başlatmayı deneyin</div>`;
-                    
-                    // Mobilde proxy değiştir
-                    if (isMobile) {
-                        switchProxy();
-                        deviceInfo.innerHTML = `📱 Mobil Mod - Proxy: ${getProxyUrl().substring(0, 25)}...`;
-                    }
+                    fallingList.innerHTML = `<div class="error">Durdurup tekrar deneyin</div>`;
                 }
             } finally {
                 abortController = null;
@@ -854,7 +859,8 @@
 
         // Sayfa yüklendiğinde
         window.addEventListener('load', () => {
-            console.log(`Cihaz: ${isMobile ? 'Mobil' : 'Desktop'}, Proxy: ${isMobile ? getProxyUrl() : 'Yok'}`);
+            console.log(`🚀 Cihaz: ${isMobile ? 'Mobil 📱' : 'Desktop 💻'}`);
+            console.log(`📡 Mod: ${isMobile ? 'Yavaş & Güvenli (CORS bypass)' : 'Hızlı & Direkt'}`);
         });
     </script>
 </body>
